@@ -1,0 +1,328 @@
+// Data model derived from the V5 spec (§3, §4, §5). PostgreSQL.
+// Multi-tenant by organizationId on every tenant-owned table (row-level isolation).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Identity & tenancy ────────────────────────────────────────────────────────
+
+model Organization {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  createdAt     DateTime       @default(now())
+  members       Membership[]
+  projects      Project[]
+  calendars     WorkCalendar[]
+  subscription  Subscription?
+  invitations   Invitation[]
+  auditLogs     AuditLog[]
+  ssoConfig     SsoConfig?
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String
+  avatarUrl     String?
+  passwordHash  String?      // null when SSO-only
+  locale        String       @default("en")
+  timezone      String       @default("Asia/Riyadh")
+  createdAt     DateTime     @default(now())
+  memberships   Membership[]
+  projectRoles  ProjectMember[]
+  assignments   TaskAssignment[]
+  leaves        Leave[]
+  comments      Comment[]
+  timeLogs      TimeLog[]
+}
+
+enum OrgRole { org_owner org_admin org_billing org_member }
+
+model Membership {
+  id             String       @id @default(cuid())
+  organizationId String
+  userId         String
+  role           OrgRole      @default(org_member)
+  /** Fractional capacity, 1.0 = full-time. Used for load calculations. */
+  capacity       Float        @default(1)
+  hoursPerDay    Float        @default(8)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([organizationId, userId])
+}
+
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String
+  email          String
+  orgRole        OrgRole      @default(org_member)
+  projectId      String?
+  projectRole    ProjectRole?
+  token          String       @unique
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model SsoConfig {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  provider       String       // saml | oidc
+  metadataUrl    String
+  domain         String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+// ─── Working calendars (spec §4.2, §5) ─────────────────────────────────────────
+
+model WorkCalendar {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  /** Array of weekday numbers 0=Sun…6=Sat */
+  workingDays    Int[]
+  hoursPerDay    Float        @default(8)
+  holidays       Holiday[]
+  projects       Project[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model Holiday {
+  id         String       @id @default(cuid())
+  calendarId String
+  date       DateTime     @db.Date
+  label      String
+  calendar   WorkCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  @@unique([calendarId, date])
+}
+
+model Leave {
+  id      String   @id @default(cuid())
+  userId  String
+  from    DateTime @db.Date
+  to      DateTime @db.Date
+  reason  String?
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Projects & RBAC (spec §4.1) ───────────────────────────────────────────────
+
+enum ProjectRole { owner pm contributor reviewer stakeholder }
+enum ProjectStatus { active archived }
+
+model Project {
+  id             String        @id @default(cuid())
+  organizationId String
+  calendarId     String
+  title          String
+  description    String?
+  category       String?
+  budget         Decimal?      @db.Decimal(14, 2)
+  currency       String        @default("USD")
+  plannedStart   DateTime      @db.Date
+  plannedDue     DateTime      @db.Date
+  status         ProjectStatus @default(active)
+  createdAt      DateTime      @default(now())
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  calendar       WorkCalendar  @relation(fields: [calendarId], references: [id])
+  members        ProjectMember[]
+  tasks          Task[]
+  milestones     Milestone[]
+  @@index([organizationId, status])
+}
+
+model ProjectMember {
+  id        String      @id @default(cuid())
+  projectId String
+  userId    String
+  role      ProjectRole
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([projectId, userId])
+}
+
+model Milestone {
+  id        String   @id @default(cuid())
+  projectId String
+  title     String
+  date      DateTime @db.Date
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── Tasks (spec §4.2) ─────────────────────────────────────────────────────────
+
+enum Priority { low medium high critical }
+enum TaskStatus { backlog todo in_progress under_review completed blocked }
+enum Visibility { project restricted }
+enum DependencyType { finish_to_start start_to_start }
+
+model Task {
+  id              String      @id @default(cuid())
+  projectId       String
+  parentId        String?
+  title           String
+  description     String?
+  priority        Priority    @default(medium)
+  status          TaskStatus  @default(todo)
+  visibility      Visibility  @default(project)
+  plannedStart    DateTime    @db.Date
+  plannedDue      DateTime    @db.Date
+  plannedHours    Float?
+  completionPct   Int         @default(0)
+  tags            String[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent          Task?       @relation("Subtasks", fields: [parentId], references: [id])
+  subtasks        Task[]      @relation("Subtasks")
+  assignments     TaskAssignment[]
+  predecessors    TaskDependency[] @relation("Successor")
+  successors      TaskDependency[] @relation("Predecessor")
+  comments        Comment[]
+  timeLogs        TimeLog[]
+  forecasts       ForecastSnapshot[]
+  alerts          DelayAlert[]
+  @@index([projectId, status])
+}
+
+enum AssignmentKind { assignee reviewer }
+
+model TaskAssignment {
+  id         String         @id @default(cuid())
+  taskId     String
+  userId     String
+  kind       AssignmentKind @default(assignee)
+  /** 0–1 share of the user's daily capacity allocated to this task. */
+  allocation Float          @default(1)
+  task       Task           @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([taskId, userId, kind])
+}
+
+model TaskDependency {
+  id            String         @id @default(cuid())
+  predecessorId String
+  successorId   String
+  type          DependencyType @default(finish_to_start)
+  predecessor   Task           @relation("Predecessor", fields: [predecessorId], references: [id], onDelete: Cascade)
+  successor     Task           @relation("Successor", fields: [successorId], references: [id], onDelete: Cascade)
+  @@unique([predecessorId, successorId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  body      String
+  /** review feedback vs plain comment */
+  kind      String   @default("comment")
+  createdAt DateTime @default(now())
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model TimeLog {
+  id     String   @id @default(cuid())
+  taskId String
+  userId String
+  date   DateTime @db.Date
+  hours  Float
+  task   Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user   User     @relation(fields: [userId], references: [id])
+}
+
+// ─── Forecasting & alerts (spec §5, §6) ────────────────────────────────────────
+
+/** Daily materialised forecast per task; the dashboard reads these, never recomputes on request. */
+model ForecastSnapshot {
+  id        String   @id @default(cuid())
+  taskId    String
+  asOf      DateTime @db.Date
+  pwd       Int
+  awde      Int
+  wdav      Float?
+  rewd      Float?
+  fcd       DateTime? @db.Date
+  wddv      Int?
+  health    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  @@unique([taskId, asOf])
+}
+
+enum AlertChannel { email slack teams webapp }
+
+model DelayAlert {
+  id        String       @id @default(cuid())
+  taskId    String
+  wddv      Int
+  channel   AlertChannel
+  sentAt    DateTime     @default(now())
+  task      Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+// ─── Subscription & billing (spec §3) ──────────────────────────────────────────
+
+enum PlanTier { free pro business enterprise }
+enum BillingCycle { monthly annual }
+enum SubscriptionStatus { trialing active past_due suspended canceled }
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  organizationId     String             @unique
+  tier               PlanTier           @default(free)
+  cycle              BillingCycle       @default(monthly)
+  status             SubscriptionStatus @default(trialing)
+  seats              Int                @default(5)
+  storageGb          Int                @default(5)
+  aiCredits          Int                @default(0)
+  trialEndsAt        DateTime?
+  currentPeriodEnd   DateTime?
+  stripeCustomerId   String?
+  stripeSubscriptionId String?
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoices           Invoice[]
+  addons             Addon[]
+}
+
+model Addon {
+  id             String       @id @default(cuid())
+  subscriptionId String
+  sku            String       // storage_500gb | ai_credits | connector_sap …
+  quantity       Int          @default(1)
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id             String       @id @default(cuid())
+  subscriptionId String
+  stripeInvoiceId String?
+  amountCents    Int
+  currency       String       @default("USD")
+  status         String       // draft | open | paid | void | uncollectible
+  issuedAt       DateTime     @default(now())
+  paidAt         DateTime?
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+// ─── Audit (spec §4.1) ─────────────────────────────────────────────────────────
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  organizationId String
+  actorId        String
+  action         String       // task.assigned | role.changed | project.deleted …
+  entityType     String
+  entityId       String
+  before         Json?
+  after          Json?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  @@index([organizationId, createdAt])
+}

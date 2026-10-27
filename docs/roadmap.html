@@ -1,0 +1,412 @@
+<title>Foresight Build Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #F7F8FB; --surface: #FFFFFF; --ink: #14213D; --ink-2: #3D4A63; --muted: #6B778C; --line: #DCE2EC;
+    --accent: #1F5FA8; --accent-soft: #E8F0FA; --ok: #0E8A6B; --warn: #B45309; --danger: #B91C1C; --code-bg: #EEF2F7;
+    --shadow: 0 1px 2px rgb(20 33 61 / .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1420; --surface: #151D2C; --ink: #EDF1F7; --ink-2: #C3CBD8; --muted: #8B97AB; --line: #263145;
+      --accent: #7FB2F0; --accent-soft: #1B2A44; --ok: #3FBF9A; --warn: #E0A04A; --danger: #F08A8A; --code-bg: #1B2536;
+      --shadow: 0 1px 2px rgb(0 0 0 / .4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1420; --surface: #151D2C; --ink: #EDF1F7; --ink-2: #C3CBD8; --muted: #8B97AB; --line: #263145;
+    --accent: #7FB2F0; --accent-soft: #1B2A44; --ok: #3FBF9A; --warn: #E0A04A; --danger: #F08A8A; --code-bg: #1B2536;
+    --shadow: 0 1px 2px rgb(0 0 0 / .4);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink-2); font: 16px/1.6 "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; }
+  h1, h2, h3, h4 { font-family: "Plus Jakarta Sans", "IBM Plex Sans", system-ui, sans-serif; color: var(--ink); line-height: 1.2; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: 2.25rem; font-weight: 700; }
+  h2 { font-size: 1.5rem; font-weight: 700; margin-top: 3.5rem; padding-top: .5rem; }
+  h3 { font-size: 1.125rem; font-weight: 600; margin-top: 2rem; }
+  p { margin: .75rem 0; max-width: 68ch; }
+  a { color: var(--accent); }
+  code, pre { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: .875em; }
+  code { background: var(--code-bg); padding: .1em .35em; border-radius: 4px; color: var(--ink); }
+  pre { background: var(--code-bg); padding: 1rem 1.25rem; border-radius: 8px; overflow-x: auto; line-height: 1.5; color: var(--ink); }
+  pre code { background: none; padding: 0; }
+  .eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  .wrap { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 3rem; max-width: 1180px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+  nav.toc { position: sticky; top: 2rem; align-self: start; font-size: .875rem; }
+  nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: .3rem 0 .3rem .75rem; border-inline-start: 2px solid var(--line); }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--ink); border-color: var(--accent); }
+  @media (max-width: 860px) { .wrap { grid-template-columns: 1fr; gap: 1.5rem; padding: 2rem 1.25rem 4rem; } nav.toc { position: static; display: flex; flex-wrap: wrap; gap: .25rem 1rem; } nav.toc a { border: 0; padding: 0; } h1 { font-size: 1.75rem; } }
+  header.hero { border-bottom: 1px solid var(--line); padding-bottom: 2rem; margin-bottom: 1rem; }
+  .lede { font-size: 1.125rem; color: var(--ink-2); max-width: 62ch; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
+  .facts li { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: .75rem 1rem; }
+  .facts b { display: block; font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.375rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .facts span { font-size: .8125rem; color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-size: .9375rem; background: var(--surface); box-shadow: var(--shadow); border-radius: 8px; overflow: hidden; }
+  .tablewrap { overflow-x: auto; margin: 1.25rem 0; }
+  th, td { text-align: start; padding: .65rem .9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--bg); }
+  td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  .phase { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 1.25rem; padding: 1.5rem 0; border-top: 1px solid var(--line); }
+  .phase .num { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--accent); line-height: 1; padding-top: .2rem; font-variant-numeric: tabular-nums; }
+  .phase h3 { margin-top: 0; }
+  .phase .meta { font-size: .8125rem; color: var(--muted); margin: .25rem 0 .75rem; }
+  .phase .meta b { color: var(--ink); font-weight: 600; }
+  .phase ul { margin: .5rem 0; padding-inline-start: 1.1rem; max-width: 72ch; }
+  .phase li { margin: .3rem 0; }
+  .done { display: inline-block; background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); font-size: .75rem; font-weight: 600; padding: .1rem .5rem; border-radius: 999px; letter-spacing: .04em; }
+  .gate { background: var(--accent-soft); border-inline-start: 3px solid var(--accent); padding: .9rem 1.1rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; max-width: 72ch; }
+  .gate b { color: var(--ink); }
+  figure { margin: 1.5rem 0; }
+  figcaption { font-size: .8125rem; color: var(--muted); margin-top: .5rem; }
+  svg text { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+  .matrix td { text-align: center; }
+  .matrix td:first-child, .matrix th:first-child { text-align: start; white-space: nowrap; }
+  .y { color: var(--ok); font-weight: 600; } .no { color: var(--line); }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.15rem; }
+  .card h4 { font-size: .9375rem; margin-bottom: .35rem; }
+  .card p, .card ul { font-size: .9rem; margin: .25rem 0; }
+  .card ul { padding-inline-start: 1.1rem; }
+  .risk td:first-child { font-weight: 600; color: var(--ink); }
+  footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line); font-size: .8125rem; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Contents">
+    <a href="#summary">Summary</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#stack">Stack</a>
+    <a href="#data">Data model</a>
+    <a href="#rbac">Roles &amp; permissions</a>
+    <a href="#forecast">Forecast engine</a>
+    <a href="#phases">Phases</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#nfr">Security &amp; scale</a>
+    <a href="#risks">Risks</a>
+    <a href="#next">Next steps</a>
+  </nav>
+
+  <main>
+    <header class="hero" id="summary">
+      <p class="eyebrow">Predictive Task Platform · V5 requirements → SaaS</p>
+      <h1>Foresight Build Roadmap</h1>
+      <p class="lede">The steps from the V5 vision document to a launched, multi-tenant SaaS: a micro-frontend web app with a login, a role-permission matrix, working-calendar forecasting, dashboards and seat-based billing — built in Next.js, English and Arabic from day one.</p>
+      <ul class="facts">
+        <li><b>≈17 wks</b><span>to MVP (Starter + Pro)</span></li>
+        <li><b>≈29 wks</b><span>to Enterprise-ready GA</span></li>
+        <li><b>3 zones</b><span>shell · projects · billing</span></li>
+        <li><b>5 + 4 roles</b><span>project · organization</span></li>
+        <li><b>7 formulas</b><span>spec §5.1, unit-tested</span></li>
+      </ul>
+    </header>
+
+    <p>Phase 0 is already done in the accompanying repository: the monorepo, the three Next.js zones, the design system, the RBAC and forecasting kernels with tests, and a clickable prototype that shares the same screen components as the real app. Everything after that is sequenced so that each phase ships something a customer can use, and so that billing (Phase 5) lands before public launch rather than after it.</p>
+
+    <h2 id="architecture">Architecture: micro-frontends on Next.js Multi-Zones</h2>
+    <p>Each business capability is its own deployable Next.js application ("zone"). The shell owns the root path and authentication and proxies every other prefix to the zone that owns it. Zones share a thin kernel of packages — UI, RBAC, forecasting, i18n — so they look and behave as one product while being built, tested and deployed independently. Crossing a zone boundary is a full page navigation on purpose; inside a zone navigation is client-side.</p>
+
+    <figure>
+      <svg viewBox="0 0 900 400" width="100%" role="img" aria-label="Architecture diagram: browser to shell zone, which proxies to projects and billing zones; all zones use shared packages and a backend of PostgreSQL, Redis queue, Stripe and notification channels.">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5 0 10z" fill="var(--muted)"/></marker></defs>
+        <rect x="20" y="30" width="150" height="54" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="95" y="53" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink)">Browser</text>
+        <text x="95" y="71" text-anchor="middle" font-size="11" fill="var(--muted)">EN · AR (RTL)</text>
+        <path d="M170 57 H228" stroke="var(--muted)" marker-end="url(#arr)"/>
+        <rect x="230" y="20" width="200" height="74" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text x="330" y="45" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink)">Shell zone  /</text>
+        <text x="330" y="63" text-anchor="middle" font-size="11" fill="var(--ink-2)">login · dashboard · settings</text>
+        <text x="330" y="80" text-anchor="middle" font-size="11" fill="var(--ink-2)">edge auth guard · rewrites</text>
+        <path d="M430 45 H508" stroke="var(--muted)" marker-end="url(#arr)"/>
+        <path d="M430 75 Q470 75 470 130 Q470 160 508 160" fill="none" stroke="var(--muted)" marker-end="url(#arr)"/>
+        <rect x="510" y="20" width="200" height="60" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="610" y="45" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink)">Projects zone  /projects</text>
+        <text x="610" y="65" text-anchor="middle" font-size="11" fill="var(--muted)">projects · board · task + forecast</text>
+        <rect x="510" y="130" width="200" height="60" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="610" y="155" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink)">Billing zone  /billing</text>
+        <text x="610" y="175" text-anchor="middle" font-size="11" fill="var(--muted)">plans · seats · revenue admin</text>
+        <rect x="740" y="20" width="140" height="170" rx="8" fill="none" stroke="var(--line)" stroke-dasharray="4 4"/>
+        <text x="810" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="var(--muted)">FUTURE ZONES</text>
+        <text x="810" y="70" text-anchor="middle" font-size="12" fill="var(--ink-2)">/team</text>
+        <text x="810" y="95" text-anchor="middle" font-size="12" fill="var(--ink-2)">/reports</text>
+        <text x="810" y="120" text-anchor="middle" font-size="12" fill="var(--ink-2)">/integrations</text>
+        <text x="810" y="145" text-anchor="middle" font-size="12" fill="var(--ink-2)">/admin</text>
+        <rect x="230" y="225" width="650" height="52" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="245" y="247" font-size="11" font-weight="600" fill="var(--muted)">SHARED KERNEL (pnpm workspace packages)</text>
+        <text x="245" y="266" font-size="12" fill="var(--ink)" font-family="IBM Plex Mono, monospace">@ptp/ui   @ptp/rbac   @ptp/forecast   @ptp/i18n   @ptp/next-host   @ptp/db</text>
+        <path d="M330 94 V223" stroke="var(--line)"/><path d="M610 80 V128" stroke="var(--line)"/><path d="M610 190 V223" stroke="var(--line)"/>
+        <rect x="230" y="305" width="150" height="70" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="305" y="330" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">PostgreSQL</text>
+        <text x="305" y="348" text-anchor="middle" font-size="11" fill="var(--muted)">Prisma · row-level tenancy</text>
+        <text x="305" y="364" text-anchor="middle" font-size="11" fill="var(--muted)">forecast snapshots</text>
+        <rect x="400" y="305" width="150" height="70" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="475" y="330" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">Redis + queue</text>
+        <text x="475" y="348" text-anchor="middle" font-size="11" fill="var(--muted)">BullMQ workers</text>
+        <text x="475" y="364" text-anchor="middle" font-size="11" fill="var(--muted)">forecast · alerts · billing</text>
+        <rect x="570" y="305" width="150" height="70" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="645" y="330" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">Stripe Billing</text>
+        <text x="645" y="348" text-anchor="middle" font-size="11" fill="var(--muted)">seats · trials · proration</text>
+        <text x="645" y="364" text-anchor="middle" font-size="11" fill="var(--muted)">webhooks → invoices</text>
+        <rect x="740" y="305" width="140" height="70" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+        <text x="810" y="330" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">Channels</text>
+        <text x="810" y="348" text-anchor="middle" font-size="11" fill="var(--muted)">email · Slack · Teams</text>
+        <text x="810" y="364" text-anchor="middle" font-size="11" fill="var(--muted)">SSO (SAML/OIDC)</text>
+        <path d="M555 277 V303" stroke="var(--line)"/>
+      </svg>
+      <figcaption>Zones are separate Next.js apps behind one hostname. The shell's rewrites map <code>/projects/*</code> and <code>/billing/*</code> to their deployments; the same session cookie is read by every zone.</figcaption>
+    </figure>
+
+    <div class="grid2">
+      <div class="card"><h4>Why zones instead of one app</h4><p>Independent deploys and ownership per capability (billing can ship without redeploying the task board), smaller build graphs, and a clean path to add zones for integrations, reporting and admin. It is the officially supported micro-frontend model for Next.js, so no custom module-federation runtime to maintain.</p></div>
+      <div class="card"><h4>What stays shared</h4><p>The design system and every screen (<code>@ptp/ui</code>), the permission matrix (<code>@ptp/rbac</code>), the calendar math (<code>@ptp/forecast</code>), translations, and the host adapter. A zone is a layout plus ~40 lines of pages. Kernel changes are versioned through the workspace, so a zone opts into an upgrade by rebuilding.</p></div>
+      <div class="card"><h4>Backend shape</h4><p>Start with server components + route handlers per zone talking to one PostgreSQL through Prisma (a modular monolith). Long-running work — forecast snapshots, alerts, Stripe webhooks — runs in queue workers. Split services out only when a zone's load or team justifies it.</p></div>
+      <div class="card"><h4>Tenancy</h4><p>Every tenant-owned row carries <code>organizationId</code>; Prisma client extensions inject the filter so a query cannot forget it. Enterprise "dedicated server" is the same code with a dedicated database and workers, deployed by Helm chart.</p></div>
+    </div>
+
+    <h2 id="stack">Stack</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend</td><td>Next.js 15 (App Router), React 18, TypeScript, Tailwind with a shared preset</td><td>SSR for fast first paint and SEO on public pages; one token file keeps zones identical</td></tr>
+        <tr><td>Micro-frontends</td><td>Next.js Multi-Zones, Turborepo, pnpm workspaces</td><td>Supported, boring, no runtime federation</td></tr>
+        <tr><td>Auth</td><td>Auth.js: email + password (Argon2id), Google, SAML/OIDC via WorkOS or Auth.js SAML for Business+</td><td>Spec asks for email link, domain and SSO provisioning</td></tr>
+        <tr><td>Data</td><td>PostgreSQL 16 (Neon or RDS), Prisma, row-level tenancy</td><td>Relational fit for tasks, dependencies, calendars</td></tr>
+        <tr><td>Jobs</td><td>Redis + BullMQ workers (forecast snapshots, alert fan-out, Stripe events, dunning)</td><td>Forecasts are recomputed off the request path</td></tr>
+        <tr><td>Billing</td><td>Stripe Billing: per-seat prices (monthly/annual), 14-day trial without card, daily proration, Smart Retries + dunning emails</td><td>Matches §3.3 exactly; Paddle as fallback for merchant-of-record needs</td></tr>
+        <tr><td>Notifications</td><td>Resend/SES email, Slack app, Microsoft Teams connector, in-app inbox</td><td>Multi-channel alerts on Pro+</td></tr>
+        <tr><td>Files</td><td>S3-compatible object storage with per-plan quotas (5 GB → 1 TB → unlimited)</td><td>Storage add-ons are a revenue stream</td></tr>
+        <tr><td>Observability</td><td>OpenTelemetry → Grafana/Tempo or Datadog; Sentry for errors; status page</td><td>Needed for the 99.9 % SLA and SOC 2 evidence</td></tr>
+        <tr><td>Infra</td><td>Vercel for zones (fastest) or AWS ECS/Fargate + CloudFront for regulated tenants; Terraform; GitHub Actions</td><td>Both paths keep the same Docker images</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="data">Data model</h2>
+    <p>The Prisma schema in <code>packages/db</code> covers the whole spec. The entities below are the ones every phase touches; the rest (holidays, leaves, time logs, comments, dependencies, add-ons, invoices, audit log) hang off them.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Entity</th><th>Key fields</th><th>Spec</th></tr></thead>
+      <tbody>
+        <tr><td>Organization · Membership</td><td>org role (<code>org_owner / org_admin / org_billing / org_member</code>), capacity, hours per day</td><td>§4.1</td></tr>
+        <tr><td>WorkCalendar · Holiday · Leave</td><td>working weekdays, hours/day, dated holidays, per-user leave ranges</td><td>§4.2, §5</td></tr>
+        <tr><td>Project · ProjectMember</td><td>title, category, budget, planned start/due, calendar, project role per member</td><td>§4.1, §4.2</td></tr>
+        <tr><td>Task · TaskAssignment · TaskDependency</td><td>priority, status lifecycle, visibility, planned dates/hours, completion %, allocation share, FS/SS links</td><td>§4.2</td></tr>
+        <tr><td>ForecastSnapshot · DelayAlert</td><td>PWD, AWDE, WD-AV, REWD, FCD, WD-DV, health per task per day; alert channel + time</td><td>§5, §6</td></tr>
+        <tr><td>Subscription · Addon · Invoice</td><td>tier, cycle, status, seats, storage, AI credits, trial end, Stripe ids</td><td>§3</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="rbac">Roles &amp; permissions</h2>
+    <p>One matrix, defined once in <code>@ptp/rbac</code>, is used three ways: <code>assertCan()</code> in every route handler and server action, <code>can()</code> to show or hide controls in the UI, and the "Roles &amp; permissions" screen that renders the matrix itself. Organization roles govern billing and membership; project roles govern everything inside a project. Custom roles (Business/Enterprise) are stored as a permission set per organization and evaluated by the same function.</p>
+    <div class="tablewrap"><table class="matrix">
+      <thead><tr><th>Permission group</th><th>Project Owner</th><th>Project Manager</th><th>Contributor</th><th>Reviewer</th><th>Stakeholder</th></tr></thead>
+      <tbody>
+        <tr><td>Edit / archive / delete project, budget, calendar</td><td class="y">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Invite members</td><td class="y">✓</td><td class="y">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Remove members, assign roles</td><td class="y">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Create / edit / delete / assign tasks, set baselines</td><td class="y">✓</td><td class="y">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Update completion %, log hours (own tasks)</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Comment</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="no">—</td></tr>
+        <tr><td>Approve / reject completion</td><td class="y">✓</td><td class="no">—</td><td class="no">—</td><td class="y">✓</td><td class="no">—</td></tr>
+        <tr><td>View restricted tasks</td><td class="y">✓</td><td class="y">✓</td><td class="no">—</td><td class="y">✓</td><td class="no">—</td></tr>
+        <tr><td>Trigger alerts, full analytics</td><td class="y">✓</td><td class="y">✓</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+        <tr><td>Dashboards &amp; health scores</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td></tr>
+        <tr><td>Audit log</td><td class="y">✓</td><td class="y">✓</td><td class="no">—</td><td class="y">✓</td><td class="no">—</td></tr>
+      </tbody>
+    </table></div>
+    <p>Every role change, assignment and task edit writes an <code>AuditLog</code> row with before/after JSON, which satisfies §4.1's audit requirement and is the evidence trail SOC 2 auditors ask for.</p>
+
+    <h2 id="forecast">Forecast engine</h2>
+    <p>The seven formulas of §5.1 are implemented in <code>@ptp/forecast</code> as pure functions over a working calendar, so the same code runs in the browser (live "what if I set 40 %?" on the task page) and in the nightly worker. The unit tests reproduce the §5.2 example exactly:</p>
+    <pre><code>Sun–Thu calendar · start Sun 6 Sep · due Thu 17 Sep · as of Thu 10 Sep · 25 % done
+PWD 10  →  PV 10 %/day  →  AWDE 5  →  WD-AV 5 %/day
+REWD (100 − 25) / 5 = 15 working days  →  FCD Thu 1 Oct (3 calendar weeks)
+WD-DV = +10 working days  →  health: DELAYED  →  high-priority alert to PM + assignee</code></pre>
+    <p>In production the worker writes a <code>ForecastSnapshot</code> per task per day (and immediately on any progress update), and dashboards read snapshots rather than recomputing on request — that is what keeps "thousands of concurrent tasks" (§4.3) cheap. Alert rules: red when WD-DV &gt; 2 working days, amber when 0 &lt; WD-DV ≤ 2 or actual velocity drops below 85 % of planned; alerts are de-duplicated per task per day and per channel.</p>
+
+    <h2 id="phases">Phases</h2>
+    <p>Each phase ends with a demo to real users and a go/no-go gate. Durations assume 3–4 engineers plus a designer/PM, five-day working weeks.</p>
+
+    <section class="phase">
+      <div class="num">0</div>
+      <div>
+        <h3>Foundations <span class="done">DONE</span></h3>
+        <p class="meta"><b>Delivered in the repository</b> · monorepo, zones, kernel packages, prototype</p>
+        <ul>
+          <li>Turborepo + pnpm workspace; three Next.js zones (<code>shell</code>, <code>projects</code>, <code>billing</code>) with rewrites, base paths and a shared session cookie; verified end to end.</li>
+          <li>Design system (<code>DESIGN.md</code>, Tailwind preset), primitives with all interaction states, responsive shell (sidebar → rail → bottom tabs), RTL with logical CSS properties, EN/AR dictionaries.</li>
+          <li><code>@ptp/rbac</code> matrix + <code>@ptp/forecast</code> engine with 20 unit tests, Prisma schema for the whole model.</li>
+          <li>Screens: login, dashboard, projects, task board, task detail with forecast chain, roles matrix, billing, revenue admin — as a single-file clickable prototype and inside the real zones.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="phase">
+      <div class="num">1</div>
+      <div>
+        <h3>Identity &amp; tenancy</h3>
+        <p class="meta"><b>3 weeks</b> · Auth.js, organizations, invitations, org roles, audit log</p>
+        <ul>
+          <li>Replace the demo cookie with Auth.js: email + password (Argon2id, breached-password check), Google OAuth, magic-link invitations, session rotation, rate limiting on <code>/api/session</code>.</li>
+          <li>Organization creation on sign-up, self-service onboarding tour, member directory, domain-based auto-join for verified domains.</li>
+          <li>Invite flow sets the org role and an optional project + project role at once (§4.1).</li>
+          <li>Audit log middleware writing every mutation; GDPR export and delete endpoints stubbed now so they are not retrofitted later.</li>
+        </ul>
+        <p class="gate"><b>Gate:</b> 10 pilot users can sign up, invite a teammate and see the roles matrix with real data behind it.</p>
+      </div>
+    </section>
+
+    <section class="phase">
+      <div class="num">2</div>
+      <div>
+        <h3>Work management core</h3>
+        <p class="meta"><b>5 weeks</b> · projects, tasks, calendars, assignments</p>
+        <ul>
+          <li>Projects CRUD with metadata, archive, baseline milestones; working-calendar templates (Sun–Thu, Mon–Fri) and custom calendars with holiday sets and per-user leave.</li>
+          <li>Tasks and subtasks with priority, planned days/hours, baseline dates, tags, FS/SS dependencies, restricted visibility; six-state lifecycle with review hand-off.</li>
+          <li>Assignment engine: multiple assignees and reviewers, allocation share, real-time over-allocation warning computed from calendar capacity.</li>
+          <li>Progress updates by % or logged hours; comments; assignment notifications (in-app + email).</li>
+          <li>Board and list views with filters; optimistic updates; keyboard accessibility audit.</li>
+        </ul>
+        <p class="gate"><b>Gate:</b> a pilot team runs one real two-week project entirely in the product.</p>
+      </div>
+    </section>
+
+    <section class="phase">
+      <div class="num">3</div>
+      <div>
+        <h3>Forecast engine in production</h3>
+        <p class="meta"><b>3 weeks</b> · snapshot jobs, alert rules, channels</p>
+        <ul>
+          <li>BullMQ worker: nightly snapshot per organization timezone plus on-change recompute; snapshot table backfill and retention policy.</li>
+          <li>Alert rules with thresholds per plan (email only on Starter; Slack/Teams on Pro+); de-duplication and quiet hours.</li>
+          <li>Critical path from FS/SS dependencies; project-level FCD derived from the critical path rather than the worst task.</li>
+          <li>Forecast accuracy metric: predicted FCD vs actual completion, shown on the dashboard.</li>
+        </ul>
+        <p class="gate"><b>Gate:</b> alerts fire correctly for a seeded set of 5,000 tasks within the nightly window.</p>
+      </div>
+    </section>
+
+    <section class="phase">
+      <div class="num">4</div>
+      <div>
+        <h3>Dashboards</h3>
+        <p class="meta"><b>3 weeks</b> · portfolio, project, team load</p>
+        <ul>
+          <li>Portfolio dashboard: health indicator, velocity vs baseline, calendar-adjusted delay queue, team resource load and leave overlay (§6.1).</li>
+          <li>Project dashboard: burn-down in working days, milestone tracking, dependency risk list.</li>
+          <li>Stakeholder view: the read-only subset, shareable by link with expiry.</li>
+          <li>Materialised views refreshed by the snapshot worker; charts follow the dataviz palette and read in both themes.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="phase">
+      <div class="num">5</div>
+      <div>
+        <h3>Subscription &amp; billing</h3>
+        <p class="meta"><b>3 weeks</b> · Stripe, plans, gating, revenue admin</p>
+        <ul>
+          <li>Stripe products for Starter/Pro/Business with monthly and annual seat prices; 14-day Pro trial without card; daily proration on seat changes; Smart Retries plus the multi-step dunning sequence before suspension (§3.3).</li>
+          <li>Plan gating as feature flags per tier (projects limit, calendars, RBAC depth, channels, storage quota), enforced server-side.</li>
+          <li>Add-ons: 500 GB storage packs, AI copilot credits, premium connectors; invoices and PO/wire flow for Enterprise.</li>
+          <li>Internal revenue dashboard: MRR, active seats, churn, expansion — the <code>/billing/revenue</code> zone route, gated by <code>org.revenue.dashboard.view</code>.</li>
+        </ul>
+        <p class="gate"><b>Gate — MVP launch:</b> first paying Pro customer; Starter self-serve open to the public.</p>
+      </div>
+    </section>
+
+    <section class="phase">
+      <div class="num">6</div>
+      <div>
+        <h3>Business &amp; Enterprise</h3>
+        <p class="meta"><b>5 weeks</b> · SSO, custom roles, multi-calendar, ML, on-prem</p>
+        <ul>
+          <li>SAML/OIDC SSO with SCIM provisioning; custom RBAC policies editor; audit log UI with export.</li>
+          <li>Multiple calendars per project for distributed teams (per-assignee calendar drives that assignee's forecast).</li>
+          <li>Predictive ML: gradient-boosted model over snapshot history to correct WD-AV for task type, assignee and phase; scenario simulation via the AI copilot (credit-metered).</li>
+          <li>Dedicated cloud / on-prem: Helm chart, single-tenant database, SLA 99.99 % runbooks, dedicated CSM handoff.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="phase">
+      <div class="num">7</div>
+      <div>
+        <h3>Integrations &amp; marketplaces</h3>
+        <p class="meta"><b>4 weeks</b> · Slack, Teams, Jira, GitHub, Google Calendar, webhooks</p>
+        <ul>
+          <li>Slack app (alerts, progress updates from Slack) and listing in the Slack App Directory; Microsoft Teams app in the Teams Store.</li>
+          <li>Jira and GitHub sync (issues ↔ tasks, PR merge → progress), Google Calendar holiday/leave import.</li>
+          <li>Outgoing webhooks and a public REST API with per-org keys; premium connectors (SAP, Salesforce CPQ, Jira Enterprise) as paid add-ons.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="phase">
+      <div class="num">8</div>
+      <div>
+        <h3>Hardening &amp; general availability</h3>
+        <p class="meta"><b>3 weeks</b> · security, scale, operations</p>
+        <ul>
+          <li>SOC 2 Type I readiness (Vanta/Drata), third-party penetration test, dependency and container scanning in CI.</li>
+          <li>Load test to 10× projected concurrency; database indexes and read replicas; snapshot job sharding by organization.</li>
+          <li>Runbooks, on-call rotation, status page, backup/restore drills, 99.9 % SLA published for paid tiers.</li>
+        </ul>
+      </div>
+    </section>
+
+    <h2 id="timeline">Timeline</h2>
+    <figure>
+      <svg viewBox="0 0 900 300" width="100%" role="img" aria-label="Gantt chart of phases 1 to 8 across 29 weeks with the MVP launch at week 17">
+        <g font-size="11" fill="var(--muted)">
+          <text x="150" y="16">Week 1</text><text x="318" y="16">8</text><text x="484" y="16">16</text><text x="651" y="16">24</text><text x="775" y="16">29</text>
+        </g>
+        <g stroke="var(--line)"><line x1="150" y1="22" x2="150" y2="270"/><line x1="318" y1="22" x2="318" y2="270"/><line x1="484" y1="22" x2="484" y2="270"/><line x1="651" y1="22" x2="651" y2="270"/></g>
+        <g font-size="12" fill="var(--ink)">
+          <text x="10" y="46">1 Identity</text><rect x="150" y="34" width="62" height="18" rx="4" fill="var(--accent)"/>
+          <text x="10" y="76">2 Work core</text><rect x="212" y="64" width="104" height="18" rx="4" fill="var(--accent)"/>
+          <text x="10" y="106">3 Forecast</text><rect x="316" y="94" width="62" height="18" rx="4" fill="var(--accent)"/>
+          <text x="10" y="136">4 Dashboards</text><rect x="378" y="124" width="62" height="18" rx="4" fill="var(--accent)"/>
+          <text x="10" y="166">5 Billing</text><rect x="440" y="154" width="62" height="18" rx="4" fill="var(--accent)"/>
+          <text x="10" y="196">6 Enterprise</text><rect x="502" y="184" width="104" height="18" rx="4" fill="var(--accent)" opacity=".55"/>
+          <text x="10" y="226">7 Integrations</text><rect x="606" y="214" width="83" height="18" rx="4" fill="var(--accent)" opacity=".55"/>
+          <text x="10" y="256">8 Hardening</text><rect x="689" y="244" width="62" height="18" rx="4" fill="var(--accent)" opacity=".55"/>
+        </g>
+        <line x1="502" y1="26" x2="502" y2="270" stroke="var(--ok)" stroke-width="2" stroke-dasharray="5 4"/>
+        <text x="508" y="284" font-size="12" font-weight="600" fill="var(--ok)">MVP launch · week 17</text>
+        <line x1="751" y1="26" x2="751" y2="270" stroke="var(--ok)" stroke-width="2"/>
+        <text x="757" y="284" font-size="12" font-weight="600" fill="var(--ok)">GA · week 29</text>
+      </svg>
+      <figcaption>Phases 3–5 can overlap by a week each once the data model settles; the estimate above keeps them sequential to stay honest. Phase 6 can start in parallel with 7 if a second squad exists.</figcaption>
+    </figure>
+
+    <h2 id="nfr">Security &amp; scale (§4.3)</h2>
+    <div class="grid2">
+      <div class="card"><h4>Encryption</h4><p>TLS 1.3 at the edge, AES-256 at rest for the database, object storage and backups; secrets in a managed vault; field-level encryption for SSO metadata and API keys.</p></div>
+      <div class="card"><h4>Tenancy &amp; access</h4><p>Row-level <code>organizationId</code> scoping injected by the ORM; <code>assertCan()</code> on every mutation; short-lived sessions; audit trail on all role changes.</p></div>
+      <div class="card"><h4>Availability</h4><p>Stateless zones behind a CDN, multi-AZ database with point-in-time recovery, queue retries with idempotent jobs, health checks per zone, status page. Target 99.9 % (99.99 % for dedicated Enterprise).</p></div>
+      <div class="card"><h4>Scale</h4><p>Forecasts are precomputed snapshots, not request-time math; dashboards read materialised views; snapshot jobs shard by organization so thousands of concurrent tasks stay within the nightly window.</p></div>
+      <div class="card"><h4>Compliance readiness</h4><p>SOC 2 controls tracked from Phase 1 (access reviews, change management, incident response); data export/delete for GDPR; regional data residency via the dedicated-deployment path.</p></div>
+      <div class="card"><h4>Accessibility &amp; i18n</h4><p>WCAG AA contrast, keyboard paths and focus states baked into the primitives; Arabic RTL with logical properties; date and number formatting deterministic across server and client.</p></div>
+    </div>
+
+    <h2 id="risks">Risks and how the plan handles them</h2>
+    <div class="tablewrap"><table class="risk">
+      <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Forecast trusted too early</td><td>Ship the accuracy metric with the engine (Phase 3) and show it on the dashboard; ML corrections only after 8+ weeks of snapshot history.</td></tr>
+        <tr><td>Micro-frontend drift</td><td>Zones consume kernel packages from the same workspace; visual regression screenshots of the prototype run in CI for every kernel change.</td></tr>
+        <tr><td>Billing edge cases (proration, dunning)</td><td>Let Stripe own the math; only mirror state from webhooks; contract tests against Stripe test clocks.</td></tr>
+        <tr><td>Enterprise asks before MVP is stable</td><td>Phase 6 is fenced after the MVP gate; sell Business on annual with an Enterprise upgrade path instead of custom work early.</td></tr>
+        <tr><td>Arabic quality</td><td>Native review of the AR dictionary before Phase 2 gate; RTL screenshots in the visual regression suite.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2 id="next">Next steps this week</h2>
+    <p>Pick the product name (the placeholder "Foresight" lives in one constant), confirm the hosting path (Vercel-first or AWS from day one), and open the Stripe and Auth provider accounts so Phase 1 starts without waiting. Then run the prototype with two or three target users — a PM, a contributor and a stakeholder — and log what they try to click that is not there yet; that list becomes the Phase 2 backlog.</p>
+
+    <footer>Foresight Build Roadmap · derived from "Product Vision &amp; System Requirements V5" · repository: <code>predictive-task-platform</code> · estimates are planning figures, not commitments.</footer>
+  </main>
+</div>

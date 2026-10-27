@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Theme tokens (RGB triplets so Tailwind can apply alpha) ────────────── */
+:root {
+  color-scheme: light;
+  --c-surface: 255 255 255;
+  --c-canvas: 246 248 251;
+  --c-line: 226 232 240;
+  --c-accent: 31 95 168;
+  --c-accent-hover: 25 77 136;
+  --c-brand-50: 238 244 251;
+  --c-brand-100: 217 230 246;
+  --c-brand-200: 179 205 236;
+  --c-brand-500: 43 108 176;
+  --c-brand-600: 31 95 168;
+  --c-brand-700: 25 77 136;
+  --c-ink-900: 15 23 42;
+  --c-ink-700: 51 65 85;
+  --c-ink-500: 100 116 139;
+  --c-ink-400: 148 163 184;
+  --c-ink-300: 203 213 225;
+  --c-slate-50: 248 250 252;
+  --c-slate-100: 241 245 249;
+  --c-slate-200: 226 232 240;
+  --c-ok-50: 236 253 245;
+  --c-ok-600: 14 138 107;
+  --c-ok-700: 11 110 86;
+  --c-warn-50: 255 251 235;
+  --c-warn-600: 180 83 9;
+  --c-warn-700: 146 64 14;
+  --c-danger-50: 254 242 242;
+  --c-danger-600: 194 65 12;
+  --c-danger-700: 185 28 28;
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.06), 0 0 0 1px rgb(15 23 42 / 0.04);
+  --shadow-pop: 0 8px 24px rgb(15 23 42 / 0.12);
+  --skeleton-a: #eef1f5;
+  --skeleton-b: #e2e6ec;
+}
+
+.dark {
+  color-scheme: dark;
+  --c-surface: 24 31 46;
+  --c-canvas: 15 20 31;
+  --c-line: 46 56 74;
+  --c-accent: 47 111 191;
+  --c-accent-hover: 59 130 214;
+  --c-brand-50: 27 41 66;
+  --c-brand-100: 33 53 87;
+  --c-brand-200: 46 80 128;
+  --c-brand-500: 96 165 250;
+  --c-brand-600: 96 155 234;
+  --c-brand-700: 147 197 253;
+  --c-ink-900: 241 245 249;
+  --c-ink-700: 203 213 225;
+  --c-ink-500: 148 163 184;
+  --c-ink-400: 110 124 148;
+  --c-ink-300: 71 85 105;
+  --c-slate-50: 30 38 54;
+  --c-slate-100: 37 46 64;
+  --c-slate-200: 51 62 82;
+  --c-ok-50: 16 46 38;
+  --c-ok-600: 52 211 153;
+  --c-ok-700: 110 231 183;
+  --c-warn-50: 51 39 16;
+  --c-warn-600: 251 191 36;
+  --c-warn-700: 252 211 77;
+  --c-danger-50: 58 24 24;
+  --c-danger-600: 248 113 113;
+  --c-danger-700: 252 165 165;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --skeleton-a: #1e2636;
+  --skeleton-b: #2a3446;
+}
+
+html, body { height: 100%; }
+body {
+  @apply bg-canvas text-ink-700 font-sans antialiased text-[14px] leading-6;
+  font-feature-settings: "tnum" 1, "cv11" 1;
+  transition: background-color .15s ease-out, color .15s ease-out;
+}
+h1, h2, h3 { @apply text-ink-900 font-semibold tracking-[-0.01em]; }
+
+/* Focus ring — consistent everywhere, only for keyboard users */
+:focus-visible { outline: none; box-shadow: 0 0 0 3px rgb(var(--c-brand-600) / 0.35); border-radius: 6px; }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--skeleton-a) 25%, var(--skeleton-b) 50%, var(--skeleton-a) 75%);
+  background-size: 200% 100%;
+  @apply animate-shimmer rounded;
+}
+
+/* Scrollbars in wide tables/boards */
+.scroll-x { overflow-x: auto; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
